@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: List
+items:
+  - apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: inference-system-sc
+    provisioner: kubernetes.io/no-provisioner
+    parameters:
+      type: pd-ssd
+    reclaimPolicy: Retain
+  ################################################################
+  - apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: json-server-pv
+    spec:
+      storageClassName: json-server-sc
+      capacity:
+        storage: 500Mi
+      volumeMode: Filesystem
+      accessModes:
+        - ReadWriteOnce
+      hostPath:
+        path: "data"
+        type: "DirectoryOrCreate"
+  ################################################################
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: json-server-pvc
+      labels:
+        app: json-server-pvc
+    spec:
+      storageClassName: json-server-sc
+      accessModes:
+        - ReadWriteOnce
+      volumeName: json-server-pv
+      resources:
+        requests:
+          storage: 500Mi
+  ################################################################
